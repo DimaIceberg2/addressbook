@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Добавление адреса</title>
+    <title th:if="${addressId == null}">Добавление адреса</title>
+    <title th:if="${addressId != null}">Редактирование адреса</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -47,33 +48,37 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header bg-white">
-                    <h3 class="mb-0">Добавление адреса</h3>
+                    <h3 class="mb-0" th:text="${addressId == null} ? 'Добавление адреса' : 'Редактирование адреса'">
+                        Форма адреса
+                    </h3>
                 </div>
                 <div class="card-body">
-                    <form th:action="@{/addresses/save}" th:object="${address}" method="post">
+                    <form th:action="@{/addresses/save}" method="post">
+                        <input type="hidden" name="addressId" th:value="${addressId}">
+
                         <div class="mb-3">
                             <label class="form-label required">Область</label>
-                            <input type="text" class="form-control" th:field="*{region}" required>
+                            <input type="text" class="form-control" name="region" th:value="${address?.region}" required>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label required">Город</label>
-                            <input type="text" class="form-control" th:field="*{city}" required>
+                            <input type="text" class="form-control" name="city" th:value="${address?.city}" required>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label required">Улица</label>
-                            <input type="text" class="form-control" th:field="*{street}" required>
+                            <input type="text" class="form-control" name="street" th:value="${address?.street}" required>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label required">Дом</label>
-                                <input type="text" class="form-control" th:field="*{buildingNumber}" required>
+                                <input type="text" class="form-control" name="buildingNumber" th:value="${address?.buildingNumber}" required>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Квартира</label>
-                                <input type="number" class="form-control" th:field="*{apartmentNumber}">
+                                <input type="number" class="form-control" name="apartmentNumber" th:value="${address?.apartmentNumber}">
                                 <small class="text-muted">Необязательное поле</small>
                             </div>
                         </div>

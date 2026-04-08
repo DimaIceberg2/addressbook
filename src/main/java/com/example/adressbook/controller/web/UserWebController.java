@@ -42,6 +42,7 @@ public class UserWebController {
 
     @PostMapping("/save")
     public String saveUser(
+            @RequestParam(required = false) Long userId,
             @RequestParam String name,
             @RequestParam(required = false) String secondName,
             @RequestParam(required = false) String patronymic,
@@ -72,8 +73,14 @@ public class UserWebController {
                     name, secondName, patronymic, phoneNumber, emailAddress, birthDateParsed, addressRequest
             );
 
-            userService.create(userRequest);
-            redirectAttributes.addFlashAttribute("success", "Пользователь успешно добавлен");
+            if (userId == null) {
+                userService.create(userRequest);
+                redirectAttributes.addFlashAttribute("success", "Пользователь успешно добавлен");
+            }
+            else {
+                userService.update(userId, userRequest);
+                redirectAttributes.addFlashAttribute("success", "Пользователь успешно обновлен");
+            }
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Ошибка при добавлении пользователя: " + e.getMessage());
             e.printStackTrace();
@@ -90,5 +97,26 @@ public class UserWebController {
             redirectAttributes.addFlashAttribute("error", "Ошибка при удалении пользователя: " + e.getMessage());
         }
         return "redirect:/users";
+    }
+
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        try {
+            UserResponse user = userService.findById(id);
+            if (user == null) {
+                redirectAttributes.addFlashAttribute("error", "Пользователь не найден");
+                return "redirect:/users";
+            }
+
+            List<AddressResponse> addresses = addressService.findAll();
+            model.addAttribute("user", user);
+            model.addAttribute("addresses", addresses);
+            model.addAttribute("userId", id);
+
+            return "users/form";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Ошибка при загрузке пользователя: " + e.getMessage());
+            return "redirect:/users";
+        }
     }
 }

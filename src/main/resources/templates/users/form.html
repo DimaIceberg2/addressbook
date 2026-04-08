@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Добавление пользователя</title>
+    <title th:if="${userId == null}">Добавление пользователя</title>
+    <title th:if="${userId != null}">Редактирование пользователя</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -47,42 +48,46 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header bg-white">
-                    <h3 class="mb-0">Добавление пользователя</h3>
+                    <h3 class="mb-0" th:text="${userId == null} ? 'Добавление пользователя' : 'Редактирование пользователя'">
+                        Форма пользователя
+                    </h3>
                 </div>
                 <div class="card-body">
                     <form th:action="@{/users/save}" method="post">
+                        <input type="hidden" name="userId" th:value="${userId}">
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label required">Имя</label>
-                                <input type="text" class="form-control" name="name" required>
+                                <input type="text" class="form-control" name="name" th:value="${user?.name}" required>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Фамилия</label>
-                                <input type="text" class="form-control" name="secondName">
+                                <input type="text" class="form-control" name="secondName" th:value="${user?.secondName}">
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Отчество</label>
-                            <input type="text" class="form-control" name="patronymic">
+                            <input type="text" class="form-control" name="patronymic" th:value="${user?.patronymic}">
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label required">Телефон</label>
-                                <input type="tel" class="form-control" name="phoneNumber" placeholder="+71234567890" required>
+                                <input type="tel" class="form-control" name="phoneNumber" th:value="${user?.phoneNumber}" placeholder="+71234567890" required>
                                 <small class="text-muted">Только цифры, можно начинать с +</small>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label required">Email</label>
-                                <input type="email" class="form-control" name="emailAddress" required>
+                                <input type="email" class="form-control" name="emailAddress" th:value="${user?.emailAddress}" required>
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label required">Дата рождения</label>
-                                <input type="date" class="form-control" name="birthDate" required>
+                                <input type="date" class="form-control" name="birthDate" th:value="${user?.birthDate}" required>
                             </div>
                         </div>
 
@@ -92,7 +97,8 @@
                                 <option value="">-- Выберите адрес --</option>
                                 <option th:each="addr : ${addresses}"
                                         th:value="${addr.id}"
-                                        th:text="${addr.region + ', ' + addr.city + ', ' + addr.street + ' ' + addr.buildingNumber}">
+                                        th:text="${addr.region + ', ' + addr.city + ', ' + addr.street + ' ' + addr.buildingNumber}"
+                                        th:selected="${user?.address != null and user.address.id == addr.id}">
                                 </option>
                             </select>
                             <small class="text-muted">

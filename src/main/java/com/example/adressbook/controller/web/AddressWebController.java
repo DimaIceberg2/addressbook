@@ -6,10 +6,7 @@ import com.example.adressbook.service.AddressService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -35,12 +32,29 @@ public class AddressWebController {
     }
 
     @PostMapping("/save")
-    public String saveAddress(AddressCreateRequest addressRequest, RedirectAttributes redirectAttributes) {
+    public String saveAddress(
+            @RequestParam(required = false) Long addressId,
+            @RequestParam String region,
+            @RequestParam String city,
+            @RequestParam String street,
+            @RequestParam String buildingNumber,
+            @RequestParam(required = false) Integer apartmentNumber,
+            RedirectAttributes redirectAttributes) {
+
         try {
-            addressService.create(addressRequest);
-            redirectAttributes.addFlashAttribute("success", "Адрес успешно добавлен");
+            AddressCreateRequest addressRequest = new AddressCreateRequest(
+                    region, city, street, buildingNumber, apartmentNumber
+            );
+
+            if (addressId != null) {
+                addressService.update(addressId, addressRequest);
+                redirectAttributes.addFlashAttribute("success", "Адрес успешно обновлен");
+            } else {
+                addressService.create(addressRequest);
+                redirectAttributes.addFlashAttribute("success", "Адрес успешно добавлен");
+            }
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Ошибка при добавлении адреса: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Ошибка при сохранении адреса: " + e.getMessage());
         }
         return "redirect:/addresses";
     }
@@ -54,5 +68,24 @@ public class AddressWebController {
             redirectAttributes.addFlashAttribute("error", "Ошибка при удалении адреса: " + e.getMessage());
         }
         return "redirect:/addresses";
+    }
+
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        try {
+            AddressResponse address = addressService.findById(id);
+            if (address == null) {
+                redirectAttributes.addFlashAttribute("error", "Адрес не найден");
+                return "redirect:/addresses";
+            }
+
+            model.addAttribute("address", address);
+            model.addAttribute("addressId", id);
+
+            return "addresses/form";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Ошибка при загрузке адреса: " + e.getMessage());
+            return "redirect:/addresses";
+        }
     }
 }
