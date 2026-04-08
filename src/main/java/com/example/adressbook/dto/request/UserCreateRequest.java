@@ -1,6 +1,5 @@
 package com.example.adressbook.dto.request;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -27,8 +26,7 @@ public record UserCreateRequest(
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     LocalDate birthDate,
 
-    @Valid
-    AddressCreateRequest address
+    Long addressId
 ) {
 
 }

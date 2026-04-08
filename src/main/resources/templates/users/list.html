@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,6 +34,16 @@
                         <i class="fas fa-map-marker-alt"></i> Адреса
                     </a>
                 </li>
+                <li sec:authorize="isAuthenticated()" class="nav-item">
+                    <a class="nav-link" th:href="@{/logout}">
+                        <i class="fas fa-sign-out-alt"></i> Выйти
+                    </a>
+                </li>
+                <li sec:authorize="isAnonymous()" class="nav-item">
+                    <a class="nav-link" th:href="@{/login}">
+                        <i class="fas fa-sign-in-alt"></i> Войти
+                    </a>
+                </li>
             </ul>
         </div>
     </div>
@@ -53,10 +64,17 @@
             <h3 class="mb-0">Список пользователей</h3>
         </div>
         <div class="card-body">
-            <div class="mb-3">
+            <!-- Кнопка добавления видна только авторизованным -->
+            <div sec:authorize="isAuthenticated()" class="mb-3">
                 <a th:href="@{/users/create}" class="btn btn-primary">
                     <i class="fas fa-plus"></i> Добавить пользователя
                 </a>
+            </div>
+
+            <!-- Сообщение для неавторизованных -->
+            <div sec:authorize="isAnonymous()" class="alert alert-info mb-3">
+                <i class="fas fa-info-circle"></i>
+                <a th:href="@{/login}">Войдите в систему</a>, чтобы добавлять, редактировать и удалять записи.
             </div>
 
             <div th:if="${users.empty}" class="alert alert-info">
@@ -85,7 +103,9 @@
                         <td th:text="${user.emailAddress}"></td>
                         <td th:text="${#temporals.format(user.birthDate, 'dd.MM.yyyy')}"></td>
                         <td th:text="${user.address != null ? user.address.city + ', ' + user.address.street : '-'}"></td>
-                        <td>
+
+                        <!-- Кнопки для авторизованных -->
+                        <td sec:authorize="isAuthenticated()">
                             <a th:href="@{/users/edit/{id}(id=${user.id})}" class="btn btn-sm btn-outline-primary" title="Редактировать">
                                 <i class="fas fa-edit"></i>
                             </a>
@@ -95,6 +115,13 @@
                                onclick="return confirm('Вы уверены, что хотите удалить этого пользователя?')">
                                 <i class="fas fa-trash"></i>
                             </a>
+                        </td>
+
+                        <!-- Для неавторизованных -->
+                        <td sec:authorize="isAnonymous()">
+                            <span class="text-muted">
+                                <i class="fas fa-lock"></i> Требуется вход
+                            </span>
                         </td>
                     </tr>
                     </tbody>

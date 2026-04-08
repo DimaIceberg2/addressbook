@@ -97,8 +97,7 @@
                                 <option value="">-- Выберите адрес --</option>
                                 <option th:each="addr : ${addresses}"
                                         th:value="${addr.id}"
-                                        th:text="${addr.region + ', ' + addr.city + ', ' + addr.street + ' ' + addr.buildingNumber}"
-                                        th:selected="${user?.address != null and user.address.id == addr.id}">
+                                        th:text="${addr.region + ', ' + addr.city + ', ' + addr.street + ' ' + addr.buildingNumber}">
                                 </option>
                             </select>
                             <small class="text-muted">

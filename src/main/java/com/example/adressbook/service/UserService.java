@@ -1,9 +1,12 @@
 package com.example.adressbook.service;
 
+import com.example.adressbook.entity.Address;
 import com.example.adressbook.entity.User;
 import com.example.adressbook.dto.request.UserCreateRequest;
 import com.example.adressbook.dto.response.UserResponse;
+import com.example.adressbook.mapper.AddressMapper;
 import com.example.adressbook.mapper.UserMapper;
+import com.example.adressbook.repository.AddressRepository;
 import com.example.adressbook.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +21,8 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final AddressMapper addressMapper;
+    private final AddressRepository addressRepository;
 
     @Transactional(readOnly = true)
     public List<UserResponse> findAll() {
@@ -37,12 +42,18 @@ public class UserService {
     public UserResponse create(UserCreateRequest request) {
         log.info("Creating user: {}", request);
 
-        // Проверка уникальности email
         if (userRepository.findByEmailAddress(request.emailAddress()).isPresent()) {
             throw new RuntimeException("User with email " + request.emailAddress() + " already exists");
         }
 
         User user = userMapper.toEntity(request);
+
+        if (request.addressId() != null) {
+            Address address = addressRepository.findById(request.addressId())
+                    .orElseThrow(() -> new RuntimeException("Address not found with id: " + request.addressId()));
+            user.setAddress(address);
+        }
+
         user = userRepository.save(user);
         return userMapper.toResponse(user);
     }
@@ -54,6 +65,11 @@ public class UserService {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
+        if (!existingUser.getEmailAddress().equals(request.emailAddress()) &&
+                userRepository.findByEmailAddress(request.emailAddress()).isPresent()) {
+            throw new RuntimeException("User with email " + request.emailAddress() + " already exists");
+        }
+
         existingUser.setName(request.name());
         existingUser.setSecondName(request.secondName());
         existingUser.setPatronymic(request.patronymic());
@@ -61,8 +77,12 @@ public class UserService {
         existingUser.setEmailAddress(request.emailAddress());
         existingUser.setBirthDate(request.birthDate());
 
-        if (request.address() != null) {
-            existingUser.setAddress(userMapper.toEntity(request).getAddress());
+        if (request.addressId() != null) {
+            Address address = addressRepository.findById(request.addressId())
+                    .orElseThrow(() -> new RuntimeException("Address not found with id: " + request.addressId()));
+            existingUser.setAddress(address);
+        } else {
+            existingUser.setAddress(null);
         }
 
         existingUser = userRepository.save(existingUser);

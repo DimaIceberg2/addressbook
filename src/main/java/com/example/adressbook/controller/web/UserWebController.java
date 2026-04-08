@@ -1,6 +1,5 @@
 package com.example.adressbook.controller.web;
 
-import com.example.adressbook.dto.request.AddressCreateRequest;
 import com.example.adressbook.dto.request.UserCreateRequest;
 import com.example.adressbook.dto.response.AddressResponse;
 import com.example.adressbook.dto.response.UserResponse;
@@ -55,35 +54,19 @@ public class UserWebController {
         try {
             LocalDate birthDateParsed = LocalDate.parse(birthDate);
 
-            AddressCreateRequest addressRequest = null;
-            if (addressId != null) {
-                AddressResponse address = addressService.findById(addressId);
-                if (address != null) {
-                    addressRequest = new AddressCreateRequest(
-                            address.region(),
-                            address.city(),
-                            address.street(),
-                            address.buildingNumber(),
-                            address.apartmentNumber()
-                    );
-                }
-            }
-
             UserCreateRequest userRequest = new UserCreateRequest(
-                    name, secondName, patronymic, phoneNumber, emailAddress, birthDateParsed, addressRequest
+                    name, secondName, patronymic, phoneNumber, emailAddress, birthDateParsed, addressId
             );
 
-            if (userId == null) {
+            if (userId != null && userId > 0) {
+                userService.update(userId, userRequest);
+                redirectAttributes.addFlashAttribute("success", "Пользователь успешно обновлен");
+            } else {
                 userService.create(userRequest);
                 redirectAttributes.addFlashAttribute("success", "Пользователь успешно добавлен");
             }
-            else {
-                userService.update(userId, userRequest);
-                redirectAttributes.addFlashAttribute("success", "Пользователь успешно обновлен");
-            }
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Ошибка при добавлении пользователя: " + e.getMessage());
-            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("error", "Ошибка при сохранении пользователя: " + e.getMessage());
         }
         return "redirect:/users";
     }
