@@ -19,11 +19,6 @@ import java.util.List;
 public class AddressRestController {
     private final AddressService addressService;
 
-    @GetMapping
-    public ResponseEntity<List<AddressResponse>> getAllAddresses() {
-        return ResponseEntity.ok(addressService.findAll());
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<AddressResponse> getAddressById(@PathVariable Long id) {
         AddressResponse address = addressService.findById(id);
@@ -46,5 +41,14 @@ public class AddressRestController {
     @DeleteMapping("/{id}")
     public void deleteAddress(@PathVariable Long id) {
         addressService.deleteById(id);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<AddressResponse>> getAllAddresses(
+            @RequestParam(required = false) String search) {
+        if (search != null && !search.trim().isEmpty()) {
+            return ResponseEntity.ok(addressService.search(search));
+        }
+        return ResponseEntity.ok(addressService.findAll());
     }
 }

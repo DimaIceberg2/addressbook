@@ -19,11 +19,6 @@ import java.util.List;
 public class UserRestController {
     private final UserService userService;
 
-    @GetMapping
-    public ResponseEntity<List<UserResponse>> getAllUsers() {
-        return ResponseEntity.ok(userService.findAll());
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
         UserResponse user = userService.findById(id);
@@ -46,5 +41,14 @@ public class UserRestController {
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable Long id) {
         userService.deleteById(id);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<UserResponse>> getAllUsers(
+            @RequestParam(required = false) String search) {
+        if (search != null && !search.trim().isEmpty()) {
+            return ResponseEntity.ok(userService.search(search));
+        }
+        return ResponseEntity.ok(userService.findAll());
     }
 }

@@ -17,13 +17,6 @@ import java.util.List;
 public class AddressWebController {
     private final AddressService addressService;
 
-    @GetMapping
-    public String ListAddress(Model model) {
-        List<AddressResponse> addresses = addressService.findAll();
-        model.addAttribute("addresses", addresses);
-        return "addresses/list";
-    }
-
     @GetMapping("/create")
     public String showCreateForm(Model model) {
         AddressCreateRequest addressRequest = new AddressCreateRequest(null, null, null, null, null);
@@ -87,5 +80,18 @@ public class AddressWebController {
             redirectAttributes.addFlashAttribute("error", "Ошибка при загрузке адреса: " + e.getMessage());
             return "redirect:/addresses";
         }
+    }
+
+    @GetMapping
+    public String listAddresses(@RequestParam(required = false) String search, Model model) {
+        List<AddressResponse> addresses;
+        if (search != null && !search.trim().isEmpty()) {
+            addresses = addressService.search(search);
+            model.addAttribute("search", search);
+        } else {
+            addresses = addressService.findAll();
+        }
+        model.addAttribute("addresses", addresses);
+        return "addresses/list";
     }
 }

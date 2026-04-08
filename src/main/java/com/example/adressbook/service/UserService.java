@@ -94,4 +94,14 @@ public class UserService {
         log.info("Deleting user with id: {}", id);
         userRepository.deleteById(id);
     }
+
+    @Transactional(readOnly = true)
+    public List<UserResponse> search(String search) {
+        if (search == null || search.trim().isEmpty()) {
+            return findAll();
+        }
+        return userRepository.searchUsers(search).stream()
+                .map(userMapper::toResponse)
+                .toList();
+    }
 }

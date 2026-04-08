@@ -61,7 +61,21 @@
 
     <div class="card">
         <div class="card-header bg-white">
-            <h3 class="mb-0">Список пользователей</h3>
+            <div class="d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">Список пользователей</h3>
+                <form class="d-flex" method="get" th:action="@{/users}">
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control" placeholder="Поиск по имени, email или телефону..."
+                               th:value="${search}">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search"></i> Найти
+                        </button>
+                        <a th:href="@{/users}" class="btn btn-secondary">
+                            <i class="fas fa-sync"></i> Сброс
+                        </a>
+                    </div>
+                </form>
+            </div>
         </div>
         <div class="card-body">
             <!-- Кнопка добавления видна только авторизованным -->

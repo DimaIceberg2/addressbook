@@ -63,4 +63,14 @@ public class AddressService {
         log.info("Deleting address with id: {}", id);
         addressRepository.deleteById(id);
     }
+
+    @Transactional(readOnly = true)
+    public List<AddressResponse> search(String search) {
+        if (search == null || search.trim().isEmpty()) {
+            return findAll();
+        }
+        return addressRepository.searchAddresses(search).stream()
+                .map(addressMapper::toResponse)
+                .toList();
+    }
 }

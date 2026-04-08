@@ -21,13 +21,6 @@ public class UserWebController {
     private final UserService userService;
     private final AddressService addressService;
 
-    @GetMapping
-    public String listUsers(Model model) {
-        List<UserResponse> users = userService.findAll();
-        model.addAttribute("users", users);
-        return "users/list";
-    }
-
     @GetMapping("/create")
     public String showCreateForm(Model model) {
         UserCreateRequest userRequest = new UserCreateRequest(null, null, null, null, null, null, null);
@@ -101,5 +94,18 @@ public class UserWebController {
             redirectAttributes.addFlashAttribute("error", "Ошибка при загрузке пользователя: " + e.getMessage());
             return "redirect:/users";
         }
+    }
+
+    @GetMapping
+    public String listUsers(@RequestParam(required = false) String search, Model model) {
+        List<UserResponse> users;
+        if (search != null && !search.trim().isEmpty()) {
+            users = userService.search(search);
+            model.addAttribute("search", search);
+        } else {
+            users = userService.findAll();
+        }
+        model.addAttribute("users", users);
+        return "users/list";
     }
 }
